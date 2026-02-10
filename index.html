@@ -1,35 +1,291 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Andrew Wolf</title>
-        <link rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bulma@0.9.2/css/bulma.min.css">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <style>
-            a { text-decoration: none; }
-        </style>
-    </head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Andrew Wolf</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        /* Navigation Styles */
+        nav {
+            background: #2d3748;
+            padding: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 0;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.75rem 1.25rem;
+            color: #e2e8f0;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s;
+            border-radius: 4px;
+        }
+
+        .nav-link:hover {
+            background-color: #4a5568;
+            color: white;
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-toggle {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .dropdown-toggle::after {
+            content: '▼';
+            font-size: 0.7rem;
+            transition: transform 0.2s;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 200px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-radius: 4px;
+            padding: 0.5rem 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.2s, transform 0.2s, visibility 0.2s;
+            margin-top: 0.5rem;
+        }
+
+        .dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown:hover .dropdown-toggle::after {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 0.75rem 1.25rem;
+            color: #2d3748;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f7fafc;
+        }
+
+        /* Main Content */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            color: #2d3748;
+        }
+
+        h1 strong {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+
+        .social-links a {
+            padding: 0.75rem 1.5rem;
+            background: #2d3748;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: transform 0.2s, background-color 0.2s;
+            font-weight: 500;
+        }
+
+        .social-links a:hover {
+            transform: translateY(-2px);
+            background: #4a5568;
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .nav-container {
+                flex-wrap: wrap;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+                margin-left: auto;
+            }
+
+            .nav-menu {
+                display: none;
+                width: 100%;
+                flex-direction: column;
+                padding-top: 1rem;
+            }
+
+            .nav-menu.active {
+                display: flex;
+            }
+
+            .dropdown-menu {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                box-shadow: none;
+                background: #4a5568;
+                margin-top: 0;
+            }
+
+            .dropdown-item {
+                color: #e2e8f0;
+                padding-left: 2.5rem;
+            }
+
+            .dropdown-item:hover {
+                background-color: #2d3748;
+            }
+
+            .dropdown .dropdown-menu {
+                display: none;
+            }
+
+            .dropdown.active .dropdown-menu {
+                display: block;
+            }
+
+            .social-links {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .social-links a {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
 <body>
-    <section class="hero is-fullheight is-dark">
-        <div class="hero-body">
-            <div class="container">
-            <div class="columns is-vcentered is-centered">
-                <div class="column is-6">
-                    <div class="block">
-                        <h1 class="title is-2">I am <b>Andrew Wolf</b></h1>
+    <nav>
+        <div class="nav-container">
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" onclick="toggleDropdown(event)">Tools</a>
+                    <div class="dropdown-menu">
+                        <a href="https://www.andrewwolf.io/usb-c-tester.html" class="dropdown-item">USB Tester</a>
                     </div>
-                    <div class="block">
-                        <h2 class="subtitle"><a href="https://www.linkedin.com/in/wolfandrew/" style="text-decoration: none"><img style="display:inline-block; height:1em; width:auto; transform:translate(0, 0.1em) alt="Linkedin icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Linkedin_icon.svg/256px-Linkedin_icon.svg.png"> LinkedIn</a><br>
-                        <a href="https://twitter.com/AndrewAlerts" style="text-decoration: none"><img style="display:inline-block; height:1em; width:auto; transform:translate(0, 0.1em) alt="Twitter icon" src="https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg"> Twitter</a></u><br>
-                        <a href="https://bsky.app/profile/andrewalerts.bsky.social" style="text-decoration: none"><img style="display:inline-block; height:1em; width:auto; transform:translate(0, 0.1em) alt="Bluesky icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Bluesky_Logo.svg/1200px-Bluesky_Logo.svg.png"> Bluesky</a></u><br>
-                        <a href="https://www.instagram.com/really.awolf/" style="text-decoration: none"><img style="display:inline-block; height:1em; width:auto; transform:translate(0, 0.1em) alt="Instagram icon" src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png"> Instagram</a>
-                        </h2>
-                    </div>
-                    </div>
-                </div>
-            </div>
-            </div>
+                </li>
+            </ul>
         </div>
-    </section>
+    </nav>
+
+    <div class="container">
+        <h1>I am <strong>Andrew Wolf</strong></h1>
+        
+        <div class="social-links">
+            <a href="https://www.linkedin.com/in/wolfandrew/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="https://twitter.com/AndrewAlerts" target="_blank" rel="noopener noreferrer">Twitter</a>
+            <a href="https://bsky.app/profile/andrewalerts.bsky.social" target="_blank" rel="noopener noreferrer">Bluesky</a>
+            <a href="https://www.instagram.com/really.awolf/" target="_blank" rel="noopener noreferrer">Instagram</a>
+        </div>
+    </div>
+
+    <script>
+        function toggleMobileMenu() {
+            const navMenu = document.getElementById('navMenu');
+            navMenu.classList.toggle('active');
+        }
+
+        function toggleDropdown(event) {
+            if (window.innerWidth <= 768) {
+                event.preventDefault();
+                const dropdown = event.target.closest('.dropdown');
+                dropdown.classList.toggle('active');
+            }
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const nav = document.querySelector('nav');
+            const toggle = document.querySelector('.mobile-menu-toggle');
+            const navMenu = document.getElementById('navMenu');
+            
+            if (!nav.contains(event.target) && navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+            }
+        });
+    </script>
 </body>
 </html>
