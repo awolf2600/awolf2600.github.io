@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USB-C Cable Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .tester-section {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 30px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .pin-group {
+            background: #2d3748;
+            border-radius: 12px;
+            padding: 25px 20px;
+            border: 3px solid #4a5568;
+            min-width: 280px;
+        }
+
+        .pin-group h3 {
+            color: #e2e8f0;
+            margin-bottom: 20px;
+            font-size: 16px;
+            text-align: center;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .pin-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            margin-bottom: 6px;
+            background: #1a202c;
+            border-radius: 6px;
+            border: 2px solid #4a5568;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .pin-item:hover {
+            border-color: #718096;
+        }
+
+        .pin-item.active {
+            border-color: #fbbf24;
+            background: #451a03;
+        }
+
+        .pin-item.active::before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            width: 8px;
+            height: 8px;
+            background: #fbbf24;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #fbbf24, 0 0 20px #fbbf24;
+        }
+
+        .pin-item input[type="checkbox"] {
+            opacity: 0;
+            position: absolute;
+            pointer-events: none;
+        }
+
+        .pin-label {
+            font-weight: 700;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            margin-left: 25px;
+            letter-spacing: 0.5px;
+        }
+
+        .pin-item.active .pin-label {
+            color: #fbbf24;
+        }
+
+        .pin-desc {
+            display: none;
+        }
+
+        .cable-connector {
+            width: 120px;
+            height: 60px;
+            background: #e2e8f0;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #4a5568;
+            align-self: center;
+            margin: 40px 0;
+            border: 3px solid #cbd5e0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .results-section {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 25px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .results-section h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .capability {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #e2e8f0;
+        }
+
+        .capability.supported {
+            border-left-color: #48bb78;
+            background: #f0fff4;
+        }
+
+        .capability.not-supported {
+            border-left-color: #f56565;
+            background: #fff5f5;
+        }
+
+        .capability.partial {
+            border-left-color: #ed8936;
+            background: #fffaf0;
+        }
+
+        .capability-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 20px;
+        }
+
+        .supported .capability-icon {
+            background: #48bb78;
+            color: white;
+        }
+
+        .not-supported .capability-icon {
+            background: #f56565;
+            color: white;
+        }
+
+        .partial .capability-icon {
+            background: #ed8936;
+            color: white;
+        }
+
+        .capability-info {
+            flex: 1;
+        }
+
+        .capability-name {
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 4px;
+        }
+
+        .capability-detail {
+            font-size: 13px;
+            color: #718096;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        @media (max-width: 768px) {
+            .tester-section {
+                flex-direction: column;
+            }
+            
+            .cable-connector {
+                transform: rotate(90deg);
+                margin: 20px 0;
+            }
+
+            .pin-group {
+                width: 100%;
+                max-width: 400px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ USB-C Cable Capability Tester</h1>
+            <p>Click the pins that light up on your physical tester to analyze your cable's capabilities</p>
+        </div>
+
+        <div class="content">
+            <div class="quick-actions">
+                <button class="btn btn-primary" onclick="selectAll()">Select All Pins</button>
+                <button class="btn btn-secondary" onclick="clearAll()">Clear All</button>
+            </div>
+
+            <div class="tester-section">
+                <div class="pin-group">
+                    <h3>PINROW B</h3>
+                    <div class="pin-item" onclick="togglePin('b1_gnd')">
+                        <input type="checkbox" id="b1_gnd" onchange="updateResults()">
+                        <span class="pin-label">B1  GND</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('b2_tx2plus')">
+                        <input type="checkbox" id="b2_tx2plus" onchange="updateResults()">
+                        <span class="pin-label">B2  TX2+</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('b3_tx2minus')">
+                        <input type="checkbox" id="b3_tx2minus" onchange="updateResults()">
+                        <span class="pin-label">B3  TX2-</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('b4_vbus')">
+                        <input type="checkbox" id="b4_vbus" onchange="updateResults()">
+                        <span class="pin-label">B4  VBUS</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('b5_cc2')">
+                        <input type="checkbox" id="b5_cc2" onchange="updateResults()">
+                        <span class="pin-label">B5  CC2</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('b6_dplus')">
+                        <input type="checkbox" id="b6_dplus" onchange="updateResults()">
+                        <span class="pin-label">B6  D+</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('b7_dminus')">
+                        <input type="checkbox" id="b7_dminus" onchange="updateResults()">
+                        <span class="pin-label">B7  D-</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('b8_sbu2')">
+                        <input type="checkbox" id="b8_sbu2" onchange="updateResults()">
+                        <span class="pin-label">B8  SBU2</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('b9_vbus')">
+                        <input type="checkbox" id="b9_vbus" onchange="updateResults()">
+                        <span class="pin-label">B9  VBUS</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('b10_rx1minus')">
+                        <input type="checkbox" id="b10_rx1minus" onchange="updateResults()">
+                        <span class="pin-label">B10 RX1-</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('b11_rx1plus')">
+                        <input type="checkbox" id="b11_rx1plus" onchange="updateResults()">
+                        <span class="pin-label">B11 RX1+</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('b12_gnd')">
+                        <input type="checkbox" id="b12_gnd" onchange="updateResults()">
+                        <span class="pin-label">B12 GND</span>
+                    </div>
+                </div>
+
+                <div class="cable-connector">
+                    Type-C
+                </div>
+
+                <div class="pin-group">
+                    <h3>PINROW A</h3>
+                    <div class="pin-item" onclick="togglePin('a12_gnd')">
+                        <input type="checkbox" id="a12_gnd" onchange="updateResults()">
+                        <span class="pin-label">A12 GND</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('a11_tx2plus')">
+                        <input type="checkbox" id="a11_tx2plus" onchange="updateResults()">
+                        <span class="pin-label">A11 TX2+</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('a10_tx2minus')">
+                        <input type="checkbox" id="a10_tx2minus" onchange="updateResults()">
+                        <span class="pin-label">A10 TX2-</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('a9_vbus')">
+                        <input type="checkbox" id="a9_vbus" onchange="updateResults()">
+                        <span class="pin-label">A9  VBUS</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('a8_sbu1')">
+                        <input type="checkbox" id="a8_sbu1" onchange="updateResults()">
+                        <span class="pin-label">A8  SBU1</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('a7_dminus')">
+                        <input type="checkbox" id="a7_dminus" onchange="updateResults()">
+                        <span class="pin-label">A7  D-</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('a6_dplus')">
+                        <input type="checkbox" id="a6_dplus" onchange="updateResults()">
+                        <span class="pin-label">A6  D+</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('a5_cc1')">
+                        <input type="checkbox" id="a5_cc1" onchange="updateResults()">
+                        <span class="pin-label">A5  CC1</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('a4_vbus')">
+                        <input type="checkbox" id="a4_vbus" onchange="updateResults()">
+                        <span class="pin-label">A4  VBUS</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('a3_tx1minus')">
+                        <input type="checkbox" id="a3_tx1minus" onchange="updateResults()">
+                        <span class="pin-label">A3  TX1-</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('a2_tx1plus')">
+                        <input type="checkbox" id="a2_tx1plus" onchange="updateResults()">
+                        <span class="pin-label">A2  TX1+</span>
+                    </div>
+                    <div class="pin-item" onclick="togglePin('a1_gnd')">
+                        <input type="checkbox" id="a1_gnd" onchange="updateResults()">
+                        <span class="pin-label">A1  GND</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="results-section">
+                <h2>📊 Cable Capabilities</h2>
+                <div id="results"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePin(pinId) {
+            const checkbox = document.getElementById(pinId);
+            checkbox.checked = !checkbox.checked;
+            updateResults();
+        }
+
+        function selectAll() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = true);
+            updateResults();
+        }
+
+        function clearAll() {
+            document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
+            updateResults();
+        }
+
+
+        function isChecked(id) {
+            return document.getElementById(id)?.checked || false;
+        }
+
+        function anyChecked(...ids) {
+            return ids.some(id => isChecked(id));
+        }
+
+        function allChecked(...ids) {
+            return ids.every(id => isChecked(id));
+        }
+
+        function updateResults() {
+            // Update pin item styling
+            document.querySelectorAll('.pin-item').forEach(item => {
+                const checkbox = item.querySelector('input[type="checkbox"]');
+                if (checkbox.checked) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Consolidate pin states using new IDs
+            const pins = {
+                gnd: anyChecked('a1_gnd', 'a12_gnd', 'b1_gnd', 'b12_gnd'),
+                vbus: anyChecked('a4_vbus', 'a9_vbus', 'b4_vbus', 'b9_vbus'),
+                cc1: isChecked('a5_cc1'),
+                cc2: isChecked('b5_cc2'),
+                sbu1: isChecked('a8_sbu1'),
+                sbu2: isChecked('b8_sbu2'),
+                dplus: anyChecked('a6_dplus', 'b6_dplus'),
+                dminus: anyChecked('a7_dminus', 'b7_dminus'),
+                // SuperSpeed Lane 1: TX1 on A side, RX1 on B side
+                tx1plus: isChecked('a2_tx1plus'),
+                tx1minus: isChecked('a3_tx1minus'),
+                rx1plus: isChecked('b11_rx1plus'),
+                rx1minus: isChecked('b10_rx1minus'),
+                // SuperSpeed Lane 2: TX2 appears on both sides
+                tx2plus: anyChecked('a11_tx2plus', 'b2_tx2plus'),
+                tx2minus: anyChecked('a10_tx2minus', 'b3_tx2minus'),
+                rx2plus: anyChecked('a11_tx2plus', 'b2_tx2plus'),
+                rx2minus: anyChecked('a10_tx2minus', 'b3_tx2minus')
+            };
+
+            const capabilities = analyzeCapabilities(pins);
+            displayResults(capabilities);
+        }
+
+        function analyzeCapabilities(pins) {
+            const results = [];
+
+            // Basic Power Delivery
+            const hasBasicPower = pins.gnd && pins.vbus && (pins.cc1 || pins.cc2);
+            results.push({
+                name: 'Basic Charging (5V)',
+                status: hasBasicPower ? 'supported' : 'not-supported',
+                detail: hasBasicPower ? 'Can charge devices at 5V' : 'Missing required power pins',
+                icon: hasBasicPower ? '✓' : '✗'
+            });
+
+            // USB Power Delivery (PD)
+            const hasPD = pins.gnd && pins.vbus && pins.cc1 && pins.cc2;
+            results.push({
+                name: 'USB Power Delivery (PD)',
+                status: hasPD ? 'supported' : pins.cc1 || pins.cc2 ? 'partial' : 'not-supported',
+                detail: hasPD ? 'Supports up to 240W with compatible devices' : 
+                        (pins.cc1 || pins.cc2) ? 'Only one CC pin - limited PD capability' : 
+                        'CC pins required for PD negotiation',
+                icon: hasPD ? '✓' : (pins.cc1 || pins.cc2) ? '⚠' : '✗'
+            });
+
+            // USB 2.0
+            const hasUSB2 = pins.dplus && pins.dminus && pins.gnd;
+            const hasPartialUSB2 = (pins.dplus || pins.dminus) && pins.gnd;
+            results.push({
+                name: 'USB 2.0 Data',
+                status: hasUSB2 ? 'supported' : hasPartialUSB2 ? 'not-supported' : 'not-supported',
+                detail: hasUSB2 ? 'Up to 480 Mbps data transfer' : 
+                        hasPartialUSB2 ? 'D+ or D- not connected on both sides - data will not work' :
+                        'D+ and D- pins required on both connector sides',
+                icon: hasUSB2 ? '✓' : '✗'
+            });
+
+            // USB 3.2 Gen 1 (5 Gbps) - requires TX1 AND RX1 pairs
+            const hasTX1 = pins.tx1plus && pins.tx1minus;
+            const hasRX1 = pins.rx1plus && pins.rx1minus;
+            const hasUSB3Gen1 = hasTX1 && hasRX1;
+            results.push({
+                name: 'USB 3.2 Gen 1 (SuperSpeed)',
+                status: hasUSB3Gen1 ? 'supported' : (hasTX1 || hasRX1) ? 'partial' : 'not-supported',
+                detail: hasUSB3Gen1 ? 'Up to 5 Gbps data transfer' : 
+                        (hasTX1 && !hasRX1) ? 'Missing RX1 pair - USB 3.x will not work' :
+                        (!hasTX1 && hasRX1) ? 'Missing TX1 pair - USB 3.x will not work' :
+                        'TX1 and RX1 differential pairs required',
+                icon: hasUSB3Gen1 ? '✓' : (hasTX1 || hasRX1) ? '⚠' : '✗'
+            });
+
+            // USB 3.2 Gen 2 (10 Gbps) - requires both lanes
+            const hasTX2 = pins.tx2plus && pins.tx2minus;
+            const hasUSB3Gen2 = hasUSB3Gen1 && hasTX2;
+            results.push({
+                name: 'USB 3.2 Gen 2 (SuperSpeed+)',
+                status: hasUSB3Gen2 ? 'supported' : hasUSB3Gen1 ? 'partial' : 'not-supported',
+                detail: hasUSB3Gen2 ? 'Up to 10 Gbps data transfer (2-lane mode)' : 
+                        hasUSB3Gen1 ? 'Only one SuperSpeed lane - limited to 5 Gbps' : 
+                        'All TX/RX pairs required for Gen 2 speeds',
+                icon: hasUSB3Gen2 ? '✓' : hasUSB3Gen1 ? '⚠' : '✗'
+            });
+
+            // USB4 (40 Gbps)
+            const hasUSB4 = hasUSB3Gen2 && pins.cc1 && pins.cc2 && pins.sbu1 && pins.sbu2;
+            results.push({
+                name: 'USB4',
+                status: hasUSB4 ? 'supported' : hasUSB3Gen2 ? 'partial' : 'not-supported',
+                detail: hasUSB4 ? 'Up to 40 Gbps with tunneling support' : 
+                        hasUSB3Gen2 ? 'Missing SBU pins or CC2 for USB4' : 
+                        'Requires all high-speed lanes, CC, and SBU pins',
+                icon: hasUSB4 ? '✓' : hasUSB3Gen2 ? '⚠' : '✗'
+            });
+
+            // Thunderbolt 3/4
+            const hasTB = hasUSB4; // Thunderbolt uses same physical requirements as USB4
+            results.push({
+                name: 'Thunderbolt 3/4 Compatible',
+                status: hasTB ? 'supported' : hasUSB3Gen2 ? 'partial' : 'not-supported',
+                detail: hasTB ? 'Cable supports Thunderbolt physical layer (up to 40 Gbps)' : 
+                        hasUSB3Gen2 ? 'Missing required pins for Thunderbolt' : 
+                        'Requires full pin set including SBU',
+                icon: hasTB ? '✓' : hasUSB3Gen2 ? '⚠' : '✗'
+            });
+
+            // DisplayPort Alt Mode
+            const hasDPLanes = (hasTX1 && hasRX1) || hasTX2;
+            const hasDP = hasDPLanes && pins.cc1 && (pins.sbu1 || pins.sbu2);
+            results.push({
+                name: 'DisplayPort Alt Mode',
+                status: hasDP ? 'supported' : hasDPLanes ? 'partial' : 'not-supported',
+                detail: hasDP ? 'Can carry DisplayPort video signal (requires compatible devices)' : 
+                        hasDPLanes ? 'Has data lanes but missing CC1 or SBU for DP Alt Mode negotiation' :
+                        'Requires SuperSpeed lanes, CC1, and SBU pins',
+                icon: hasDP ? '✓' : hasDPLanes ? '⚠' : '✗'
+            });
+
+            // Audio Adapter Accessory Mode
+            const hasAudio = pins.cc1 && (pins.sbu1 && pins.sbu2);
+            results.push({
+                name: 'Audio Adapter Mode',
+                status: hasAudio ? 'supported' : 'not-supported',
+                detail: hasAudio ? 'Can support analog audio adapters' : 'Requires CC1 and both SBU pins',
+                icon: hasAudio ? '✓' : '✗'
+            });
+
+            // E-Marker chip detection
+            const hasEmarker = pins.cc1 && pins.cc2 && pins.vbus;
+            results.push({
+                name: 'E-Marker Chip Detection',
+                status: hasEmarker ? 'supported' : 'not-supported',
+                detail: hasEmarker ? 'Can detect and communicate with cable E-Marker chip for high-power/high-speed negotiation' : 
+                        'Requires both CC pins and VBUS',
+                icon: hasEmarker ? '✓' : '✗'
+            });
+
+            return results;
+        }
+
+        function displayResults(capabilities) {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = capabilities.map(cap => `
+                <div class="capability ${cap.status}">
+                    <div class="capability-icon">${cap.icon}</div>
+                    <div class="capability-info">
+                        <div class="capability-name">${cap.name}</div>
+                        <div class="capability-detail">${cap.detail}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Initialize on load
+        updateResults();
+    </script>
+</body>
+</html>
